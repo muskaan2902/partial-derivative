@@ -1,0 +1,63 @@
+import numpy as np
+import sympy as sp
+
+uspm = 900 # Unit Solds Per Month
+
+# Sales --> Selling price per unit
+# Expenses --> Expense per unit
+
+# Define financial model as a function
+def financial_model(sales, expenses):
+    return (sales - expenses) * uspm
+
+# Input parameters
+sales = 50
+expenses = 30
+
+# Define the parameters want to perform sensitivity analysis on
+sales_values = np.linspace(40, 95, 11)  # Vary sales from 40 to 95 in steps of 11
+expenses_values = np.linspace(20, 75, 11)  # Vary expenses from 20 to 75 in steps of 11
+
+# Initialize an empty matrix to store results
+results = np.zeros((len(sales_values), len(expenses_values)))
+
+# Performing sensitivity analysis
+for i, sale in enumerate(sales_values):
+    for j, exp in enumerate(expenses_values):
+        result = financial_model(sale, exp)
+        results[i][j] = result
+
+# Print the results
+print("Sensitivity Analysis Results:")
+print("Sales / Expenses\t", end='')
+for exp in expenses_values:
+    print(f"{exp}\t", end='')
+print()
+for i, sale in enumerate(sales_values):
+    print(f"{sale}\t", end='')
+    for j, exp in enumerate(expenses_values):
+        print(f"{results[i][j]:,.2f}\t", end='')
+    print()
+
+# Define the variables
+sales, expenses = sp.symbols('sales expenses')
+
+# Define the profit model
+profit = (sales - expenses) * uspm
+
+# Calculate the partial derivatives
+d_profit_sales = sp.diff(profit, sales)
+d_profit_expenses = sp.diff(profit, expenses)
+
+# Calculate the total derivative
+total_derivative = d_profit_sales * sp.diff(sales, sales) + d_profit_expenses * sp.diff(expenses, expenses)
+
+# Print the results
+print("Partial Derivatives:")
+print("If selling price is changing then profit will change with the rate: ", d_profit_sales)
+print("If expense is changing then profit will change with the rate: ", d_profit_expenses)
+
+print("Total Derivative:")
+print("If selling price and expense is changing by the same value then profit will change with the rate: ", total_derivative)
+
+# Now, use these derivatives to perform sensitivity analysis as required.
